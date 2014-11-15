@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+    <head>
+<script type="text/javascript"
+    src="http://code.jquery.com/jquery-latest.js"></script>
+
+
+    <script type="text/javascript"
+         src="http://nikkor.tumblr.com/api/read/json?num=1&type=photo"></script>
+
+
+        <script type="text/javascript">
+			(function($) {
+				$.extend({
+					_jsonp : {
+						scripts: {},
+						charset: 'utf-8',
+						counter: 1,
+						head: document.getElementsByTagName("head")[0],
+						name: function( callback ) {
+							var name = '_jsonp_' +  (new Date).getTime()
+								+ '_' + this.counter;
+							this.counter++;
+							var cb = function( json ) {
+								eval( 'delete ' + name );
+								callback( json );
+								$._jsonp.head.removeChild( $._jsonp.scripts[ name ] );
+								delete $._jsonp.scripts[ name ];
+							};
+							eval( name + ' = cb' );
+							return name;
+						},
+						load: function( url, name ) {
+							var script = document.createElement( 'script' );
+							script.type    = 'text/javascript';
+							script.charset = this.charset;
+							script.src     = url;
+							this.head.appendChild( script );
+							this.scripts[ name ] = script;
+						}
+					},
+					getJSONP : function ( url, callback ){
+						var name = $._jsonp.name( callback );
+						var url = url.replace( /{callback}/, name );
+						$._jsonp.load( url, name );
+						return this;
+					}
+				});
+			})(jQuery);
+        </script>
+
+
+<script type="text/javascript">
+
+       var count =0;
+	            function tumblr_image(json) {
+	                var result = json.posts[0];
+                   var posturl = result["url"];
+					//$(document).ready(function (){
+	                
+                   $('.mybox').eq(count).empty();
+					$('.mybox').eq(count).append('<center><a href="' + posturl + '"><img src="' + result["photo-url-100"] + '"></img></a></center><br />' + result["photo-caption"]);
+					count++;
+			//	});
+				
+				$('body').append(result["slug"]  + "<p>");
+				
+	            }
+	
+				function load_posts() {
+					for (i=0;i<10;i++) 
+					{
+					    $.get("http://nikkor.tumblr.com/api/read/json",
+					    {type: "photo",
+					     num: 1,
+					     start: i
+					    },
+			            tumblr_image,
+			            "jsonp")
+					}
+
+				}
+
+
+				function load_posts3() {
+					for (i=0;i<10;i++) 
+					{
+					    $.ajax({
+						type: "GET",
+				  		url: "http://nikkor.tumblr.com/api/read/json",
+				  		data: {
+				  				type: "photo",
+							     num: 1,
+							     start: i
+				  			},
+				  		success: tumblr_image,
+				  		dataType: "jsonp"})
+					}
+
+				}
+
+
+
+				function load_posts2() {
+					for (i=0;i<10;i++) 
+					{
+					    $.getJSONP("http://nikkor.tumblr.com/api/read/json?type=photo&num=1&start=" + i + "&callback=tumblr_image",
+			            tumblr_image)
+					}
+
+				}
+
+
+
+
+		var media = "software";
+		var limitOfSearchResults = 1;
+
+		function search() {
+
+			var element = $('#search'); //get the input field with id of search
+			var searchterm = $(element).attr('value'); //get the value of the search
+
+			// get JSONP with getJSON()
+			$.getJSON("http://itunes.apple.com/search?term=" + "angry" 
+									+ "&country=de&limit=" + limitOfSearchResults 
+									+ "&media=" + media 
+									+ "&callback=?", function(data) {
+
+				img = data["results"][0].artworkUrl100;
+
+				$('body').append('<img src="' + img + '"/>');
+
+			});
+
+			// get JSONP with get()
+			/*
+			$.get("http://itunes.apple.com/search",
+			    {
+					term : searchterm,
+					country: "de",
+					limit: limitOfSearchResults,
+					media: media
+			    },
+			    function(data){
+			    	img = data["results"][0].artworkUrl100;
+
+			  		$('#img').html('<img src="' + img + '"/>');
+			    },
+			    "jsonp"
+			);
+			*/
+
+			// get JSONP with ajax()
+			/*
+			$.ajax({
+				type: "GET",
+		  		url: "http://itunes.apple.com/search",
+		  		data: {
+		  				term : searchterm,
+					  	country: "de",
+					  	limit: limitOfSearchResults,
+					  	media: media
+		  			},
+		  		success: function(data){
+		  					img = data["results"][0].artworkUrl100;
+
+							$('#img').html('<img src="' + img + '"/>');
+		  				 },
+		  		dataType: "jsonp"
+			});
+			*/
+		}
+
+		
+		$(document).ready(function (){ load_posts3(); });
+
+
+</script>
+</head>
+
+<body>
+<h1> Tumblr Importer </h1>
+
+</body>
+
+</html>
